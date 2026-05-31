@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>2.yil ozel</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* css degiskenleri ve temel stiller */
+    :root {
+      --bg:            #dcd4f0;   
+      --cream:         #fdf6f0;   
+      --pink-pale:     #fce8f1;   
+      --pink-light:    #f9d0e4;   
+      --pink-mid:      #f0a8c8;   
+      --pink-deep:     #e07398;   
+      --pink-stroke:   #dca0bc;   
+      --lavender:      #c5bce8;
+      --mauve:         #b8a8d8;
+      --shadow-sm:     0 4px 10px rgba(220,130,160,0.12);
+      --shadow-md:     0 10px 24px rgba(110,120,180,0.16);
+      --shadow-lg:     0 16px 36px rgba(90,100,160,0.22);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      font-family: 'Quicksand', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      user-select: none;
+      -webkit-user-select: none;
+      transition: opacity 1.1s ease;
+    }
+
+    .page {
+      width: min(100%, 420px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* arka plandaki suzulen yildizlar */
+    .stars { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+    .star {
+      position: absolute; width: 10px; height: 10px; background: #fff1d4;
+      clip-path: polygon(50% 0%, 62% 33%, 98% 33%, 69% 55%, 80% 91%, 50% 70%, 20% 91%, 31% 55%, 2% 33%, 38% 33%);
+      opacity: 0; animation: floatAndRotate linear infinite;
+    }
+    @keyframes floatAndRotate {
+      0%   { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+      12%  { opacity: 0.85; }
+      88%  { opacity: 0.85; }
+      100% { transform: translateY(-15vh) rotate(360deg) scale(1.3); opacity: 0; }
+    }
+
+    /* zarf sistemi */
+    .envelope-wrap {
+      width: min(92vw, 340px);
+      height: 220px;
+      position: relative;
+      perspective: 1400px;
+    }
+
+    /* arka govde */
+    .env-back {
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 100%; height: 180px;
+      background: #fcdbe6;
+      border: 5px solid var(--pink-stroke);
+      border-radius: 36px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1;
+      overflow: hidden;
+    }
+    .env-back::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0) 60%);
+    }
+
+    /* pofuduk ucgen kapak container */
+    .env-flap-container {
+      position: absolute;
+      left: 0; top: 35px;
+      width: 100%;
+      height: 125px;
+      z-index: 8;
+      transform-origin: 50% 0%;
+      transform: rotateX(0deg);
+      transition: transform 0.9s cubic-bezier(.175, .885, .32, 1.25);
+      transform-style: preserve-3d;
+    }
+    .envelope-wrap.open .env-flap-container {
+      transform: rotateX(180deg);
+    }
+
+    .env-flap-svg {
+      width: 100%; height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 6px 0 rgba(232,168,191,0.25));
+      backface-visibility: hidden;
+      position: absolute; inset: 0;
+    }
+
+    .env-flap-back {
+      width: 100%; height: 100%;
+      position: absolute; inset: 0;
+      transform: rotateX(180deg);
+      backface-visibility: hidden;
+      filter: drop-shadow(0 -4px 0 rgba(0,0,0,0.04));
+    }
+
+    /* muhur kalp */
+    .flap-seal {
+      position: absolute;
+      left: 50%; bottom: -2px;
+      transform: translateX(-50%) scale(1.8);
+      z-index: 9;
+      pointer-events: none;
+      backface-visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .envelope-wrap.open .flap-seal { opacity: 0; }
+
+    /* on cep */
+    .env-front {
+      position: absolute;
+      left: -5px; bottom: -5px;
+      width: calc(100% + 10px);
+      height: 105px;
+      background: #fde5ed;
+      border: 5px solid var(--pink-stroke);
+      border-radius: 45px 45px 36px 36px / 20px 20px 36px 36px;
+      box-shadow: 0 -4px 15px rgba(220,140,170,0.08);
+      z-index: 5;
+      pointer-events: none;
+    }
+    /* dikis çizgileri */
+    .env-front::before {
+      content: ''; position: absolute; inset: 8px;
+      border-radius: 35px 35px 26px 26px / 12px 12px 26px 26px;
+      border: 3px dashed rgba(232, 168, 191, 0.5);
+    }
+
+    /* ayicik karakteri */
+    .bear {
+      position: absolute; left: 24px; top: 65px; z-index: 4;
+      transform: rotate(-6deg) scale(0.9);
+      transition: transform 0.9s cubic-bezier(.175, .885, .32, 1.15), top 0.9s cubic-bezier(.175, .885, .32, 1.15);
+    }
+    .envelope-wrap.open .bear { top: -45px; transform: rotate(-2deg) scale(1.05); }
+
+    .bear-face {
+      width: 105px; height: 85px; background: var(--cream);
+      border-radius: 50%; position: relative; border: 4.5px solid var(--pink-stroke);
+    }
+    .bear-ear {
+      width: 30px; height: 30px; background: var(--cream);
+      border-radius: 50%; position: absolute; top: -6px; border: 4.5px solid var(--pink-stroke);
+    }
+    .bear-ear.left { left: -2px; } .bear-ear.right { right: -2px; }
+    .bear-ear::before {
+      content: ''; position: absolute; inset: 4px; background: #ffd4e2; border-radius: 50%;
+    }
+
+    .bear-eye { position: absolute; background: #523b32; }
+    .bear-eye.left { left: 28px; top: 30px; width: 10px; height: 10px; border-radius: 50%; }
+    .bear-eye.right {
+      right: 26px; top: 34px; width: 14px; height: 4px;
+      border-radius: 3px; transform: rotate(-12deg);
+    }
+    .bear-nose-area {
+      position: absolute; left: 50%; top: 36px; transform: translateX(-50%);
+      width: 26px; height: 20px; background: #fff; border-radius: 50%;
+    }
+    .bear-nose {
+      width: 12px; height: 8px; background: #523b32; border-radius: 50% 50% 40% 40%;
+      position: absolute; left: 50%; top: 3px; transform: translateX(-50%);
+    }
+    .bear-blush {
+      width: 16px; height: 11px; background: #ffbccc; border-radius: 50%;
+      position: absolute; top: 40px; opacity: 0.85; filter: blur(0.5px);
+    }
+    .bear-blush.left { left: 14px; } .bear-blush.right { right: 14px; }
+
+    .bear-paw {
+      position: absolute; width: 24px; height: 24px; background: var(--cream);
+      border: 4px solid var(--pink-stroke); border-radius: 50%; bottom: -8px; z-index: 6;
+    }
+    .bear-paw.left { left: 12px; transform: rotate(20deg); }
+    .bear-paw.right { right: 12px; transform: rotate(-20deg); }
+
+    /* kuponlar katmani */
+    .tickets-layer { position: absolute; left: 0; right: 0; bottom: 20px; height: 160px; z-index: 2; pointer-events: none; }
+    .ticket {
+      position: absolute; left: 50%; bottom: 0;
+      width: min(76vw, 240px); height: 120px;
+      transform: translateX(-50%) translateY(60px) scale(0.9);
+      opacity: 0; background: #fff;
+      border: 4px dashed var(--pink-mid); border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 12px; text-align: center;
+      transition: transform 0.9s cubic-bezier(.175, .885, .32, 1.15), opacity 0.5s ease;
+    }
+    .ticket h3 { margin: 0; font-size: 17px; color: var(--pink-deep); font-weight: 800; }
+    .ticket p { margin: 6px 0 0; font-size: 13px; color: #788299; font-weight: 600; line-height: 1.3; }
+
+    /* acilis yelpaze acilari */
+    .envelope-wrap.open .t1 { opacity:1; transform:translateX(-50%) translateY(-105px) rotate(-9deg); transition-delay:.1s; }
+    .envelope-wrap.open .t2 { opacity:1; transform:translateX(-50%) translateY(-140px) rotate(8deg); transition-delay:.28s; }
+    .envelope-wrap.open .t3 { opacity:1; transform:translateX(-50%) translateY(-175px) rotate(-6deg); transition-delay:.45s; }
+    .envelope-wrap.open .t4 { opacity:1; transform:translateX(-50%) translateY(-210px) rotate(7deg); transition-delay:.62s; }
+    .envelope-wrap.open .t5 { opacity:1; transform:translateX(-50%) translateY(-245px) rotate(-4deg); transition-delay:.8s; }
+
+    /* pofuduk kaydirgac */
+    .slider-container {
+      width: min(85vw, 290px); height: 60px; position: relative; margin-top: 10px;
+    }
+    .slider-track {
+      width: 100%; height: 100%; background: rgba(255, 255, 255, 0.45);
+      border: 4px solid rgba(255, 255, 255, 0.6); border-radius: 30px;
+      box-shadow: inset 0 3px 6px rgba(110,120,170,0.1), var(--shadow-sm);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; padding: 2px;
+    }
+    .slider-text {
+      color: #7987cc; font-size: 14px; font-weight: 700; opacity: 0.9;
+      pointer-events: none; letter-spacing: 0.2px; z-index: 1;
+    }
+    
+    /* yeni pofuduk maymun butonu */
+    .slider-thumb {
+      position: absolute;
+      left: 4px;
+      top: 4px;
+      width: 44px;
+      height: 44px;
+      background: #b07d62; 
+      border: 3.5px solid #8d5b4c; 
+      border-radius: 50%;
+      cursor: grab;
+      z-index: 3;
+      touch-action: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(141,91,76,0.25);
+    }
+    .slider-thumb:active { cursor: grabbing; }
+
+    .thumb-bear-face {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 50%;
+    }
+
+    /* maymun kulaklari */
+    .thumb-bear-face::before, .thumb-bear-face::after {
+      content: '';
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      background: #b07d62;
+      border: 2.5px solid #8d5b4c;
+      border-radius: 50%;
+      top: 11px; 
+      z-index: -1;
+    }
+    .thumb-bear-face::before { left: -6px; box-shadow: inset -2px 0 #f3c6a5; } 
+    .thumb-bear-face::after { right: -6px; left: auto; box-shadow: inset 2px 0 #f3c6a5; }
+
+    /* maymunun yuzundeki acik renk maske */
+    .thumb-inner-dots {
+      position: absolute;
+      inset: 2px;
+      background: #f3c6a5; 
+      border-radius: 50% 50% 45% 45%;
+      border: 1.5px solid rgba(141,91,76,0.15);
+    }
+
+    /* gozler ve burun/agiz alani */
+    .thumb-inner-dots::before {
+      content: '';
+      position: absolute;
+      left: 9px;
+      top: 10px;
+      width: 4px;
+      height: 4.5px;
+      background: #3d221a;
+      border-radius: 50%;
+      box-shadow: 
+        11px 0 #3d221a, 
+        -2.5px 7px 0 0.5px #3d221a; 
+    }
+    .thumb-inner-dots::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 14px; 
+      transform: translateX(-50%);
+      width: 6px;
+      height: 4px;
+      background: #de9b72;
+      border-radius: 50%;
+    }
+
+    /* utangac maymun yanaklari */
+    .thumb-monkey-blush {
+      position: absolute;
+      top: 15px;
+      width: 6px;
+      height: 4px;
+      background: #ff7fa0; 
+      border-radius: 50%;
+      opacity: 0; 
+      filter: blur(0.3px);
+      transition: opacity 0.1s ease;
+    }
+    .thumb-monkey-blush.left { left: 4px; }
+    .thumb-monkey-blush.right { right: 4px; }
+
+    /* sag uctaki hedef pembe kalp */
+    .slider-heart-slot {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; z-index: 2;
+    }
+    .heart-svg-icon {
+      width: 24px; height: 24px; fill: #ffb3c6; filter: drop-shadow(0 2px 3px rgba(220,130,160,0.15));
+      transition: transform 0.2s cubic-bezier(.175, .885, .32, 1.25);
+    }
+    .heart-pulse { animation: heartBeatEffect 0.6s infinite alternate; fill: var(--pink-deep); }
+    @keyframes heartBeatEffect {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.22); }
+    }
+
+    /* mesaj kutusu ve konfeti */
+    .message {
+      min-width: min(85vw, 300px); padding: 15px; border-radius: 24px;
+      background: rgba(255,255,255,0.8); color: var(--pink-deep);
+      font-weight: 800; text-align: center; box-shadow: var(--shadow-sm);
+      opacity: 0; transform: translateY(10px); transition: opacity .6s ease, transform .6s ease;
+      font-size: 15px;
+    }
+    .message.show { opacity: 1; transform: translateY(0); }
+
+    .confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 99; overflow: hidden; }
+    .c-piece {
+      position: absolute; width: 16px; height: 16px;
+      background: var(--hcol);
+      clip-path: path("M12,4.24 C10.94,2.1 8.52,0.67 5.76,0.67 C2.57,0.67 0,3.24 0,6.43 C0,11.83 7.82,16.89 11.23,19.06 C11.7,19.36 12.3,19.36 12.77,19.06 C16.18,16.89 24,11.83 24,6.43 C24,3.24 21.43,0.67 18.24,0.67 C15.48,0.67 13.06,2.1 12,4.24 Z");
+      animation: confettiFall var(--dur) cubic-bezier(.25, .46, .45, .94) forwards;
+      animation-delay: var(--delay);
+    }
+    @keyframes confettiFall {
+      0% { transform: translate(0, 0) rotate(var(--rot0)) scale(0.6); opacity: 0; }
+      15% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translate(var(--mx), var(--my)) rotate(var(--rot1)) scale(0.9); opacity: 0; }
+    }
+
+    /* ekran boyut ayarlari */
+    @media (max-height: 740px) {
+      .page { gap: 14px; }
+      .envelope-wrap { transform: scale(0.9); transform-origin: center top; }
+      .slider-container { transform: scale(0.95); margin-top: -10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+  <div class="confetti-layer" id="confetti"></div>
+
+  <main class="page">
+
+    <div class="envelope-wrap" id="env">
+
+     <div class="tickets-layer" aria-hidden="true">
+        <div class="ticket t1"><h3>🎬kumanda sende</h3><p>ne acarsan ac hic bise demeden izleyecegim</p></div>
+        <div class="ticket t2"><h3>⚔️kucuk minyon</h3><p>lol gel</p></div>
+        <div class="ticket t3"><h3>🔫 piu piu</h3><p>valo gel </p></div>
+        <div class="ticket t4"><h3>😽muahhh</h3><p>sınırsız opucuk</p></div>
+        <div class="ticket t5"><h3>🧨tripsavar</h3><p>havadaki gerginligi aninda bitirme ve yumusama garantisi</p></div>
+      </div>
+
+      <div class="bear" aria-hidden="true">
+        <div class="bear-ear left"></div>
+        <div class="bear-ear right"></div>
+        <div class="bear-face">
+          <div class="bear-eye left"></div>
+          <div class="bear-eye right"></div>
+          <div class="bear-nose-area"><div class="bear-nose"></div></div>
+          <div class="bear-blush left"></div>
+          <div class="bear-blush right"></div>
+        </div>
+        <div class="bear-paw left"></div>
+        <div class="bear-paw right"></div>
+      </div>
+
+      <div class="env-back"></div>
+
+      <div class="env-flap-container" id="flapContainer">
+        <svg class="env-flap-svg" viewBox="0 0 340 125" preserveAspectRatio="none">
+          <path d="M 5 5 
+                   Q 25 5 45 5 
+                   L 148 104 
+                   Q 170 120 192 104 
+                   L 295 5 
+                   Q 315 5 335 5" 
+                fill="#fde5ed" 
+                stroke="#e8a8bf" 
+                stroke-width="5" 
+                stroke-linecap="round" 
+                stroke-linejoin="round"/>
+        </svg>
+        <div class="env-flap-back"><div class="env-flap-back-shape"></div></div>
+        
+        <div class="flap-seal">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="#ff7fa0">
+            <path d="M12,4.24 C10.94,2.1 8.52,0.67 5.76,0.67 C2.57,0.67 0,3.24 0,6.43 C0,11.83 7.82,16.89 11.23,19.06 C11.7,19.36 12.3,19.36 12.77,19.06 C16.18,16.89 24,11.83 24,6.43 C24,3.24 21.43,0.67 18.24,0.67 C15.48,0.67 13.06,2.1 12,4.24 Z"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="env-front"></div>
+
+    </div>
+
+    <div class="slider-container" id="sliderContainer">
+      <div class="slider-track">
+        <div class="slider-text" id="sliderText">mektubu acmak icin kaydir...</div>
+        
+        <div class="slider-thumb" id="sliderThumb">
+          <div class="thumb-bear-face">
+            <div class="thumb-inner-dots">
+              <div class="thumb-monkey-blush left"></div>
+              <div class="thumb-monkey-blush right"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="slider-heart-slot">
+          <svg class="heart-svg-icon" id="targetHeart" viewBox="0 0 24 24">
+            <path d="M12,4.24 C10.94,2.1 8.52,0.67 5.76,0.67 C2.57,0.67 0,3.24 0,6.43 C0,11.83 7.82,16.89 11.23,19.06 C11.7,19.36 12.3,19.36 12.77,19.06 C16.18,16.89 24,11.83 24,6.43 C24,3.24 21.43,0.67 18.24,0.67 C15.48,0.67 13.06,2.1 12,4.24 Z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="message" id="messageBox">sana ozel surprizler yukleniyor... 💕</div>
+
+  </main>
+
+  <script>
+    /* arka plan gokyuzu yildizlari */
+    const starsEl = document.getElementById('stars');
+    for (let i = 0; i < 32; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = Math.random() * 100 + 'vw';
+      s.style.top = Math.random() * 100 + 'vh';
+      s.style.animationDelay = (-Math.random() * 12) + 's';
+      s.style.animationDuration = (12 + Math.random() * 8) + 's';
+      starsEl.appendChild(s);
+    }
+
+    /* sayfa element baglantilari */
+    const env            = document.getElementById('env');
+    const sliderContainer= document.getElementById('sliderContainer');
+    const sliderThumb    = document.getElementById('sliderThumb');
+    const targetHeart    = document.getElementById('targetHeart');
+    const sliderText     = document.getElementById('sliderText');
+    const messageBox     = document.getElementById('messageBox');
+    const confettiWrap   = document.getElementById('confetti');
+
+    let isDragging = false;
+    let startX = 0;
+    let currentLeft = 0;
+    let maxDelta = 0;
+    let successStarted = false;
+
+    /* renkli kalp konfetileri */
+    function spawnHearts() {
+      const colors = ['#ff7fa0', '#ffb8cc', '#ffd6e8', '#fff0f5', '#ff4d7d'];
+      for (let i = 0; i < 50; i++) {
+        const wrap = document.createElement('div');
+        wrap.className = 'c-piece';
+
+        const col = colors[Math.floor(Math.random() * colors.length)];
+        const delay = Math.random() * 0.4 + 's';
+        const dur = 1.3 + Math.random() * 0.8 + 's';
+        
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 180;
+        const mx = Math.cos(angle) * distance + 'px';
+        const my = (Math.sin(angle) * distance - 80) + 'px';
+
+        const rot0 = (Math.random() * 40 - 20) + 'deg';
+        const rot1 = (Math.random() * 360 - 180) + 'deg';
+
+        wrap.style.cssText = `
+          left: ${45 + Math.random() * 10}vw;
+          top: ${40 + Math.random() * 10}vh;
+          --hcol: ${col};
+          --delay: ${delay};
+          --dur: ${dur};
+          --rot0: ${rot0};
+          --rot1: ${rot1};
+          --mx: ${mx};
+          --my: ${my};
+        `;
+
+        confettiWrap.appendChild(wrap);
+        wrap.addEventListener('animationend', () => wrap.remove(), { once: true });
+      }
+    }
+
+    /* surpriz acilis akisi */
+    function triggerMektupOpen() {
+      if (successStarted) return;
+      successStarted = true;
+
+      env.classList.add('open');
+      spawnHearts();
+
+      sliderContainer.style.pointerEvents = 'none';
+      sliderContainer.style.transition = 'opacity 0.4s';
+      sliderContainer.style.opacity = '0';
+
+      setTimeout(() => messageBox.classList.add('show'), 1200);
+      setTimeout(() => document.body.style.opacity = '0', 4800);
+      setTimeout(() => window.location.href = 'kuponlar.html', 6000);
+    }
+
+    /* kaydirma event mekanizmasi */
+    function getX(e) {
+      return e.touches ? e.touches[0].clientX : e.clientX;
+    }
+
+    function startDrag(e) {
+      if (successStarted) return;
+      isDragging = true;
+      startX = getX(e) - currentLeft;
+      
+      const trackWidth = sliderThumb.parentElement.clientWidth;
+      const thumbWidth = sliderThumb.clientWidth;
+      maxDelta = trackWidth - thumbWidth - 8; 
+      
+      sliderThumb.style.transition = 'none';
+      sliderText.style.transition = 'none';
+    }
+
+    function doDrag(e) {
+      if (!isDragging || successStarted) return;
+      
+      let x = getX(e) - startX;
+      if (x < 0) x = 0;
+      if (x > maxDelta) x = maxDelta;
+      
+      currentLeft = x;
+      sliderThumb.style.left = (x + 4) + 'px';
+      
+      const progress = x / maxDelta;
+      sliderText.style.opacity = 1 - (progress * 1.5);
+
+      const blushes = document.querySelectorAll('.thumb-monkey-blush');
+
+      if (progress > 0.3) {
+        let blushOpacity = (progress - 0.3) / 0.7; 
+        blushes.forEach(b => b.style.opacity = blushOpacity);
+      } else {
+        blushes.forEach(b => b.style.opacity = 0);
+      }
+
+      if (progress > 0.75) {
+        targetHeart.classList.add('heart-pulse');
+      } else {
+        targetHeart.classList.remove('heart-pulse');
+      }
+
+      if (x >= maxDelta) {
+        isDragging = false;
+        triggerMektupOpen();
+      }
+    }
+
+    function stopDrag() {
+      if (!isDragging || successStarted) return;
+      isDragging = false;
+
+      currentLeft = 0;
+      sliderThumb.style.transition = 'left 0.4s cubic-bezier(.175, .885, .32, 1.2)';
+      sliderThumb.style.left = '4px';
+      
+      sliderText.style.transition = 'opacity 0.3s';
+      sliderText.style.opacity = '1';
+      targetHeart.classList.remove('heart-pulse');
+    }
+
+    sliderThumb.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', doDrag);
+    window.addEventListener('mouseup', stopDrag);
+
+    sliderThumb.addEventListener('touchstart', startDrag, { passive: true });
+    window.addEventListener('touchmove', doDrag, { passive: false });
+    window.addEventListener('touchend', stopDrag);
+
+  </script>
+</body>
+</html>
